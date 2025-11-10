@@ -25,6 +25,10 @@ export async function POST(request: Request) {
             },
           ],
         },
+        PreOrders: {
+          type: "number",
+          number: typeof body?.preorders === "number" ? body.preorders : Number(body?.preorders ?? 0),
+        },
       },
     });
 

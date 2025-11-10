@@ -90,7 +90,7 @@ export default function Demo({
 							{/* Play button */}
 							<motion.button
 								onClick={handlePlayClick}
-								className="relative w-16 h-16 bg-[#e5ff00] rounded-full flex items-center justify-center mb-4 z-10"
+								className="relative w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-4 z-10"
 								whileHover={{ scale: 1.1 }}
 								whileTap={{ scale: 0.95 }}
 								aria-label="Play video"
@@ -99,7 +99,7 @@ export default function Demo({
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									viewBox="0 0 24 24"
-									fill="black"
+									fill="white"
 									className="w-8 h-8"
 									style={{ marginLeft: "2px" }} // Slight offset for the play icon
 									aria-hidden="true"

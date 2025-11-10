@@ -18,9 +18,18 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-	title: "Idee8 — Next.js + Notion Waitlist Template",
+	title: "Neurolab — Preorder Waitlist",
 	description:
-		"A simple Next.js waitlist template with Notion as CMS and Resend to send emails created with React Email and Upstash Redis for rate limiting. Deployed on Vercel.",
+		"Join the Neurolab preorder waitlist. Be among the first to experience the future of AI-powered productivity.",
+	icons: {
+		icon: "/logo.png?v=1",
+		shortcut: "/logo.png?v=1",
+		apple: "/logo.png?v=1",
+		other: {
+			rel: "icon",
+			url: "/logo.png?v=1",
+		},
+	},
 };
 
 export default function RootLayout({
