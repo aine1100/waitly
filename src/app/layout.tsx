@@ -18,7 +18,7 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-	title: "Neurolab — Preorder Waitlist",
+	title: "Neurolab Preorder Waitlist",
 	description:
 		"Join the Neurolab preorder waitlist. Be among the first to experience the future of AI-powered productivity.",
 	icons: {
