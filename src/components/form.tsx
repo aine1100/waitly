@@ -3,12 +3,14 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
+import { ConfettiRef } from "./magicui/confetti";
+
 interface FormProps {
   onSuccessChange?: (success: boolean) => void;
+  confettiRef?: React.RefObject<ConfettiRef>;
 }
 
-export default function WaitlistForm({ onSuccessChange }: FormProps) {
+export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps) {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState({
     email: "",
@@ -114,7 +116,7 @@ export default function WaitlistForm({ onSuccessChange }: FormProps) {
           setSuccess(true);
           onSuccessChange?.(true);
           setTimeout(() => {
-            confetti({
+            confettiRef?.current?.fire({
               particleCount: 100,
               spread: 70,
               origin: { y: 0.6 },
@@ -159,6 +161,7 @@ export default function WaitlistForm({ onSuccessChange }: FormProps) {
     setFormData({ email: "", name: "", preorders: "" });
     setSuccess(false);
     setDropdownOpen(false);
+    setLoading(false);
     onSuccessChange?.(false);
   };
 
@@ -191,7 +194,7 @@ export default function WaitlistForm({ onSuccessChange }: FormProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-background border border-border rounded-[12px] p-6"
+          className="bg-background border border-border rounded-[12px] p-6 relative z-10"
         >
           <div className="text-center mb-6">
             <h3 className="text-xl font-semibold text-foreground mb-2">Reserve Your Device</h3>

@@ -12,16 +12,16 @@ export function LandingPage({ waitlistPeople }: { waitlistPeople: number }) {
   const confettiRef = useRef<ConfettiRef>(null);
 
   return (
-    <main className="mx-auto max-w-screen-2xl w-full h-full flex-1 flex flex-col relative">
-      <Confetti
-        ref={confettiRef}
-        className="fixed inset-0 z-50 pointer-events-none"
-        manualstart={true}
-      />
-      <Hero waitlistPeople={waitlistPeople} />
+    <main className="flex flex-col gap-8 row-start-2 items-center">
+      <Hero waitlistPeople={waitlistPeople} confettiRef={confettiRef} />
       <Powered />
       <Faq />
       <Footer />
+      <Confetti
+        ref={confettiRef}
+        className="absolute left-0 top-0 z-0 size-full pointer-events-none"
+        manualstart={true}
+      />
     </main>
   );
 }
