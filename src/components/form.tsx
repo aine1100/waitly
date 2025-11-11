@@ -55,104 +55,43 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
     
     const preorderCount = Number(formData.preorders);
     if (!Number.isFinite(preorderCount) || !Number.isInteger(preorderCount) || preorderCount <= 0) {
-      toast.error("Please enter a valid number of devices (whole number > 0)");
+      toast.error("Please select number of devices");
       return;
     }
 
     try {
       setLoading(true);
+      toast.loading("Redirecting to secure checkout... 🔒");
 
-      const promise = new Promise((resolve, reject) => {
-        const { name, email } = formData;
-
-        fetch("/api/mail", {
-          cache: "no-store",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ firstname: name, email, preorders: preorderCount }),
-        })
-          .then((mailResponse) => {
-            if (!mailResponse.ok) {
-              if (mailResponse.status === 429) {
-                reject("Rate limited");
-              } else {
-                reject("Email sending failed");
-              }
-              return null;
-            }
-
-            return fetch("/api/notion", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ name, email, preorders: preorderCount }),
-            });
-          })
-          .then((notionResponse) => {
-            if (!notionResponse) return;
-
-            if (!notionResponse.ok) {
-              if (notionResponse.status === 429) {
-                reject("Rate limited");
-              } else {
-                reject("Notion insertion failed");
-              }
-            } else {
-              resolve({ name });
-            }
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
-
-      toast.promise(promise, {
-        loading: "Getting you on the waitlist... 🚀",
-        success: (data) => {
-          setFormData({ email: "", name: "", preorders: "" });
-          setSuccess(true);
-          onSuccessChange?.(true);
-          setTimeout(() => {
-            confettiRef?.current?.fire({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: [
-                "#ff0000",
-                "#00ff00",
-                "#0000ff",
-                "#ffff00",
-                "#ff00ff",
-                "#00ffff",
-              ],
-            });
-          }, 100);
-          return "Thank you for joining the waitlist 🎉";
+      // Create Stripe checkout session
+      const response = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        error: (error) => {
-          if (error === "Rate limited") {
-            return "You're doing that too much. Please try again later";
-          }
-          if (error === "Email sending failed") {
-            return "Failed to send email. Please try again 😢.";
-          }
-          if (error === "Notion insertion failed") {
-            return "Failed to save your details. Please try again 😢.";
-          }
-          return "An error occurred. Please try again 😢.";
-        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          quantity: formData.preorders,
+        }),
       });
 
-      promise.finally(() => {
-        setLoading(false);
-      });
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error: any) {
+      console.error("Error creating checkout:", error);
       setLoading(false);
-      alert("Something went wrong. Please try again.");
+      toast.error(error.message || "Failed to proceed to checkout. Please try again.");
     }
   };
 
@@ -317,20 +256,20 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Processing Preorder...
+                  Redirecting to Checkout...
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
-                  Secure Preorder - $0 Today
+                  Proceed to Payment - $250/device
                 </span>
               )}
             </button>
             
             <p className="text-xs text-muted-foreground text-center">
-              payment required. We'll contact you with pricing and payment details before shipping.
+              🔒 Secure payment via Stripe • 20% Early Bird Discount • Ships Early 2026
             </p>
           </form>
         </motion.div>
