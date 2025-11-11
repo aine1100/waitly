@@ -20,7 +20,7 @@ export default function Hero({
     <div className="flex flex-col items-center justify-center gap-8 py-8 text-center">
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex items-center justify-center">
-          <Logo width={64} height={64} />
+          <Logo />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-2">

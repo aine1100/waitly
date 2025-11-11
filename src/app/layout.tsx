@@ -22,13 +22,9 @@ export const metadata: Metadata = {
 	description:
 		"Join the Neurolab preorder waitlist. Be among the first to experience the future of AI-powered productivity.",
 	icons: {
-		icon: "/logo.png?v=1",
-		shortcut: "/logo.png?v=1",
-		apple: "/logo.png?v=1",
-		other: {
-			rel: "icon",
-			url: "/logo.png?v=1",
-		},
+		icon: "/favicon.ico",
+		shortcut: "/favicon.ico",
+		apple: "/favicon.ico",
 	},
 };
 

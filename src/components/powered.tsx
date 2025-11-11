@@ -49,7 +49,7 @@ export default function Powered() {
 						height={80}
 						className="opacity-70 hover:opacity-100 transition-opacity rounded-full object-cover"
 					/>
-					<p className="text-sm text-muted-foreground font-medium text-center">Neurolab Team</p>
+					<p className="text-sm text-muted-foreground font-medium text-center">Neuralink Team</p>
 				</Link>
 			</div>
 		</div>

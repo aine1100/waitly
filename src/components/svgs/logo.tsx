@@ -1,20 +1,20 @@
 import Image from "next/image";
+import LogoImage from "../../app/favicon.ico"
 
 interface LogoProps {
-	width?: number;
-	height?: number;
-	className?: string;
+  className?: string;
 }
 
-export default function Logo({ width = 48, height = 48, className }: LogoProps) {
-	return (
-		<Image
-			src="/logo.png"
-			alt="Neurolab Logo"
-			width={width}
-			height={height}
-			className={className}
-			priority
-		/>
-	);
+export default function Logo({ className }: LogoProps) {
+  return (
+    <Image
+      src={LogoImage}
+      alt="Neurolab Logo"
+      sizes="100vw"
+      className={`w-auto h-auto ${className}`}
+      width={0}
+      height={0}
+      priority
+    />
+  );
 }
