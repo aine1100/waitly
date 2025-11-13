@@ -122,7 +122,7 @@ export default function TrackOrderModal({ open, onClose }: { open: boolean; onCl
   );
 }
 
-function StatusBadge({ status }: { status?: string }) {
+function StatusBadge({ status }: { status?: string | null }) {
   const cls =
     status === "successful"
       ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
