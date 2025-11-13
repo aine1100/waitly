@@ -1,33 +1,167 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Confetti, ConfettiRef } from "~/components/magicui/confetti";
 
+interface PaymentData {
+  status: string;
+  amount?: number;
+  customer_email?: string;
+  customer_name?: string;
+  tx_ref?: string;
+}
+
 export default function SuccessPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const sessionId = searchParams.get("session_id");
+  const txRef = searchParams.get("tx_ref");
+  const paymentMethod = searchParams.get("payment_method");
   const confettiRef = useRef<ConfettiRef>(null);
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Trigger confetti on success page load
-    setTimeout(() => {
-      confettiRef.current?.fire({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: [
-          "#ff0000",
-          "#00ff00",
-          "#0000ff",
-          "#ffff00",
-          "#ff00ff",
-          "#00ffff",
-        ],
-      });
-    }, 500);
-  }, []);
+    const verifyPayment = async () => {
+      try {
+        setIsLoading(true);
+
+        // If Flutterwave payment, verify the transaction
+        if (paymentMethod === "flutterwave") {
+          // Try to get tx_ref from URL, or from sessionStorage if not in URL
+          let transactionRef = txRef;
+          if (!transactionRef) {
+            transactionRef = sessionStorage.getItem("flutterwave_tx_ref");
+          }
+
+          if (!transactionRef) {
+            console.error("No transaction reference found");
+            throw new Error("Transaction reference not found");
+          }
+
+          console.log("Verifying Flutterwave transaction:", transactionRef);
+          
+          // Use POST endpoint with tx_ref in body
+          const response = await fetch("/api/verify-flutterwave-payment-post", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              tx_ref: transactionRef,
+            }),
+          });
+
+          const data = await response.json();
+
+          console.log("API response:", { status: response.status, data });
+
+          if (!response.ok) {
+            console.error("API response error:", data);
+            throw new Error(data.error || "Failed to verify payment");
+          }
+
+          // Check if payment was successful
+          if (data.status === "successful") {
+            setPaymentData(data);
+            // Clear the stored tx_ref
+            sessionStorage.removeItem("flutterwave_tx_ref");
+            // Trigger confetti on success
+            setTimeout(() => {
+              confettiRef.current?.fire({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: [
+                  "#ff0000",
+                  "#00ff00",
+                  "#0000ff",
+                  "#ffff00",
+                  "#ff00ff",
+                  "#00ffff",
+                ],
+              });
+            }, 500);
+          } else if (data.status === "cancelled") {
+            router.push(`/failed?reason=cancelled`);
+          } else {
+            console.warn("Payment not successful, status:", data.status);
+            router.push(`/failed?reason=failed`);
+          }
+        } else if (paymentMethod === "stripe" && sessionId) {
+          // Handle Stripe verification (if needed in future)
+          setPaymentData({
+            status: "successful",
+            tx_ref: sessionId,
+          });
+        } else {
+          throw new Error("Invalid payment parameters");
+        }
+      } catch (err: any) {
+        console.error("Error verifying payment:", err);
+        setError(err.message || "Failed to verify payment");
+        router.push(`/failed?reason=timeout`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyPayment();
+  }, [txRef, paymentMethod, sessionId, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="bg-background border border-border rounded-2xl p-8 shadow-lg">
+            <div className="flex flex-col items-center gap-4">
+              <svg
+                className="animate-spin h-12 w-12 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              <h2 className="text-xl font-semibold text-foreground">Verifying Payment...</h2>
+              <p className="text-muted-foreground">Please wait while we confirm your transaction.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show success page when verification definitively succeeded
+  if (!paymentData || paymentData.status !== "successful") {
+    // If verification failed, we already navigated to /failed via router.push
+    // Return a minimal placeholder to avoid flashing the success UI
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="bg-background border border-border rounded-2xl p-8 shadow-lg">
+            <h2 className="text-xl font-semibold text-foreground">Redirecting...</h2>
+            <p className="text-muted-foreground text-sm">Taking you to the appropriate page.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -91,10 +225,10 @@ export default function SuccessPage() {
             </ul>
           </div>
 
-          {/* Session ID (for reference) */}
-          {sessionId && (
+          {/* Order ID (for reference) */}
+          {(txRef || sessionId) && (
             <p className="text-xs text-muted-foreground mb-6">
-              Order ID: {sessionId.slice(-12)}
+              Order ID: {(txRef || sessionId)?.slice(-12) || "N/A"}
             </p>
           )}
 

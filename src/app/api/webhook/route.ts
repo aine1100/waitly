@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-10-29.clover",
 });
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
+const notion = new Client({ auth: process.env.NOTION_SECRET });
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check environment variables
-    if (!process.env.NOTION_DATABASE_ID) {
+    if (!process.env.NOTION_DB) {
       console.error("❌ NOTION_DATABASE_ID not configured!");
       return NextResponse.json(
         { error: "Notion database not configured" },
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       // Add to Notion database
       const notionResponse = await notion.pages.create({
         parent: {
-          database_id: process.env.NOTION_DATABASE_ID!,
+          database_id: process.env.NOTION_DB!,
         },
         properties: {
           Name: {
@@ -99,13 +99,24 @@ export async function POST(req: NextRequest) {
           PreOrders: {
             number: parseInt(device_quantity),
           },
-          Status: {
-            select: {
-              name: "Waiting",
-            },
-          },
           amount: {
             number: session.amount_total ? session.amount_total / 100 : 0,
+          },
+          // Add Order ID (Stripe Session ID)
+          order_id: {
+            rich_text: [
+              {
+                text: {
+                  content: session.id,
+                },
+              },
+            ],
+          },
+          // Add Status - defaulting to "Waiting" based on your screenshot
+          Status: {
+            status: {
+              name: "Waiting", // Options: "Waiting", "Contacted", "Approved", "Declined", "In progress", "Done"
+            },
           },
         },
       });
@@ -114,10 +125,21 @@ export async function POST(req: NextRequest) {
       // Send confirmation email
       console.log("📧 Sending confirmation email...");
       await resend.emails.send({
-        from: "Neurolab <onboarding@resend.dev>", // Update with your verified domain
+        from: "Neurolab <info@neurolab.cc>", // Update with your verified domain
         to: customer_email,
         subject: "Your Neurolab Device Preorder is Confirmed! 🎉",
-        react: WaitlistEmail({ userFirstname: customer_name.split(" ")[0] }),
+        react: WaitlistEmail({ 
+          userFirstname: customer_name.split(" ")[0],
+          orderId: session.id,
+          deviceQuantity: parseInt(device_quantity),
+          amountPaid: session.amount_total || 0,
+          customerEmail: customer_email,
+          orderDate: new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        }),
       });
       console.log("✅ Email sent to:", customer_email);
 

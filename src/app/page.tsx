@@ -1,15 +1,19 @@
+import { notion } from "~/lib/notion";
 import { LandingPage } from "./page.client";
-import { connection } from "next/server";
-import { getNotionDatabaseRowCount } from "~/lib/utils";
 
-export const dyamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [waitlistPeople] = await Promise.all([
-    await getNotionDatabaseRowCount(process.env.NOTION_DB!),
-    // forces the page to be dyamically rendered
-    await connection(),
-  ]);
+export default async function Page() {
+  let waitlistPeople = 0;
+
+  try {
+    const response = await notion.databases.query({
+      database_id: `${process.env.NOTION_DB}`,
+    });
+    waitlistPeople = response.results.length;
+  } catch (error) {
+    console.error("Error fetching waitlist count:", error);
+  }
 
   return <LandingPage waitlistPeople={waitlistPeople} />;
 }

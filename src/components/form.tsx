@@ -18,6 +18,7 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
     preorders: "",
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "flutterwave">("flutterwave");
   
   const quantityOptions = [
     { value: "1", label: "1 Device", description: "Perfect for personal use" },
@@ -63,8 +64,13 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
       setLoading(true);
       toast.loading("Redirecting to secure checkout... 🔒");
 
-      // Create Stripe checkout session
-      const response = await fetch("/api/create-checkout", {
+      // Choose API endpoint based on payment method
+      const endpoint = paymentMethod === "stripe" 
+        ? "/api/create-checkout" 
+        : "/api/create-flutterwave-payment";
+
+      // Create checkout session
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,9 +88,14 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
         throw new Error(data.error || "Failed to create checkout session");
       }
 
-      // Redirect to Stripe Checkout
-      if (data.url) {
-        window.location.href = data.url;
+      // For Flutterwave, store tx_ref in sessionStorage before redirecting
+      if (paymentMethod === "flutterwave" && data.tx_ref) {
+        sessionStorage.setItem("flutterwave_tx_ref", data.tx_ref);
+      }
+
+      // Redirect to payment page
+      if (data.url || data.link) {
+        window.location.href = data.url || data.link;
       } else {
         throw new Error("No checkout URL received");
       }
@@ -217,6 +228,46 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
               </AnimatePresence>
             </div>
             
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground">Payment Method</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("flutterwave")}
+                  className={`p-3 rounded-[12px] border-2 transition-all ${
+                    paymentMethod === "flutterwave"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/50"
+                      : "border-border bg-background hover:border-blue-300"
+                  }`}
+                  disabled={loading}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">F</span>
+                    </div>
+                    <span className="text-sm font-medium">Flutterwave</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("stripe")}
+                  className={`p-3 rounded-[12px] border-2 transition-all ${
+                    paymentMethod === "stripe"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/50"
+                      : "border-border bg-background "
+                  }`}
+                  disabled={true}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">S</span>
+                    </div>
+                    <span className="text-sm font-medium">Stripe</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
             <div className="bg-blue-50 dark:bg-blue-950/50 rounded-[12px] p-4 border border-blue-200 dark:border-blue-800">
               <div className="flex items-start space-x-3">
                 <svg className="w-5 h-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -269,7 +320,7 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
             </button>
             
             <p className="text-xs text-muted-foreground text-center">
-              🔒 Secure payment via Stripe • 20% Early Bird Discount • Ships Early 2026
+              🔒 Secure payment via {paymentMethod === "stripe" ? "Stripe" : "Flutterwave"} • 20% Early Bird Discount • Ships Early 2026
             </p>
           </form>
         </motion.div>

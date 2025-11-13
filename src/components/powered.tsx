@@ -5,7 +5,7 @@ export default function Powered() {
 	return (
 		<div className="flex flex-col items-center justify-center gap-12 py-12">
 			<div className="flex flex-col items-center justify-center gap-2">
-				<h3 className="text-foreground text-2xl font-semibold">Our Partners</h3>
+				<h3 className="text-foreground text-2xl font-semibold">Trusted By</h3>
 				<p className="text-muted-foreground text-base">
 					Trusted by leading organizations in neurotechnology and AI research.
 				</p>
@@ -51,6 +51,7 @@ export default function Powered() {
 					/>
 					<p className="text-sm text-muted-foreground font-medium text-center">Neuralink Team</p>
 				</Link>
+				
 			</div>
 		</div>
 	);
