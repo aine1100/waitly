@@ -71,7 +71,7 @@ export default function TrackOrderModal({ open, onClose }: { open: boolean; onCl
             </svg>
           </button>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">Enter the reference shown after payment (tx_ref).</p>
+        <p className="text-sm text-muted-foreground mb-4">Enter the Order Id shown in your email.</p>
 
         <form onSubmit={onSubmit} className="flex gap-2 mb-4">
           <input
@@ -112,7 +112,7 @@ export default function TrackOrderModal({ open, onClose }: { open: boolean; onCl
               <span className="text-foreground font-medium">{data.device_quantity ?? "—"}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Reference</span>
+              <span className="text-sm text-muted-foreground">Order Id</span>
               <span className="text-foreground font-mono text-xs">{data.tx_ref || txRef}</span>
             </div>
           </div>
