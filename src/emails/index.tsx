@@ -188,11 +188,11 @@ const WaitlistEmail = ({
 								Neurolab Technologies, Kigali, Rwanda
 							</Text>
 							<Text className="text-[12px] text-[#71717A] text-center mt-[16px]">
-								<Link href="https://neurolab.cc/unsubscribe" className="text-[#3B82F6]">
+								<Link href="https://neurolab.cc/" className="text-[#3B82F6]">
 									Unsubscribe
 								</Link>{' '}
 								•{' '}
-								<Link href="https://neurolab.cc/privacy" className="text-[#3B82F6]">
+								<Link href="https://neurolab.cc/" className="text-[#3B82F6]">
 									Privacy Policy
 								</Link>
 							</Text>
