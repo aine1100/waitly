@@ -26,6 +26,32 @@ export const metadata: Metadata = {
 		shortcut: "/favicon.ico",
 		apple: "/favicon.ico",
 	},
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://neurolab.cc"),
+  openGraph: {
+    title: "Neurolab Preorder Waitlist",
+    description:
+      "Join the Neurolab preorder waitlist. Be among the first to experience the future of AI-powered productivity.",
+    url: "/",
+    siteName: "Neurolab",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 1200,
+        height: 630,
+        alt: "Neurolab Preorder",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Neurolab Preorder Waitlist",
+    description:
+      "Join the Neurolab preorder waitlist. Be among the first to experience the future of AI-powered productivity.",
+    images: ["/twitter-image.png"],
+    creator: "@neurolab",
+  },
 };
 
 export default function RootLayout({
