@@ -85,7 +85,7 @@ const WaitlistEmail = ({
 											</td>
 											<td style={{ padding: '8px 0', textAlign: 'right' }}>
 												<Text className="text-[14px] text-white font-mono m-0">
-													{orderId.slice(0, 20)}...
+													{orderId}
 												</Text>
 											</td>
 										</tr>
@@ -136,7 +136,7 @@ const WaitlistEmail = ({
 							<Section className="my-[32px] text-center">
 								<Button
 									className="bg-[#3B82F6] text-white font-bold py-[12px] px-[24px] rounded-[12px] no-underline text-center box-border"
-									href={`https://neurolab.cc/order/${orderId}`}
+									href={`https://waitlist.neurolab.cc`}
 								>
 									<span style={{ display: 'inline-flex', alignItems: 'center' }}>
 										<svg
