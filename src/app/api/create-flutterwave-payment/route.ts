@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       tx_ref: tx_ref,
       amount: amount,
-      currency: "NGN",
+      currency: "USD",
       redirect_url: `${req.headers.get("origin")}/success?tx_ref=${tx_ref}&payment_method=flutterwave`,
       payment_options: "card,banktransfer,ussd",
       customer: {

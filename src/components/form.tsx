@@ -234,7 +234,7 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
                 </svg>
                 <div>
                   <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Early Bird Pricing</p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">Preorder customers get 20% off retail price and priority shipping in early 2026.</p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Preorder customers get priority shipping in early 2026.</p>
                 </div>
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function WaitlistForm({ onSuccessChange, confettiRef }: FormProps
             </button>
             
             <p className="text-xs text-muted-foreground text-center">
-              🔒 Secure payment via Flutterwave • 20% Early Bird Discount • Ships Early 2026
+              🔒 Secure payment via Flutterwave  • Ships Early 2026
             </p>
           </form>
         </motion.div>
